@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Plus, Edit, Trash2, ExternalLink } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface AdminPromotionsProps {
@@ -21,19 +20,10 @@ const AdminPromotions = ({ onPromotionsChange }: AdminPromotionsProps) => {
 
   const checkPromotions = async () => {
     try {
-      // Check if there are any promotions in the database
-      const { data, error } = await supabase
-        .from('promotions')
-        .select('id')
-        .limit(1);
-
-      if (error) {
-        console.error('Error checking promotions:', error);
-      } else {
-        const hasPromotions = data && data.length > 0;
-        setPromotions(data || []);
-        onPromotionsChange?.(hasPromotions);
-      }
+      // Since there's no promotions table in the database yet,
+      // we'll assume there are no promotions for now
+      setPromotions([]);
+      onPromotionsChange?.(false);
     } catch (error) {
       console.error('Error:', error);
       onPromotionsChange?.(false);
