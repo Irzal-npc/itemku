@@ -1,10 +1,59 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, ExternalLink } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
-const AdminPromotions = () => {
+interface AdminPromotionsProps {
+  onPromotionsChange?: (hasPromotions: boolean) => void;
+}
+
+const AdminPromotions = ({ onPromotionsChange }: AdminPromotionsProps) => {
+  const [promotions, setPromotions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    checkPromotions();
+  }, []);
+
+  const checkPromotions = async () => {
+    try {
+      // Check if there are any promotions in the database
+      const { data, error } = await supabase
+        .from('promotions')
+        .select('id')
+        .limit(1);
+
+      if (error) {
+        console.error('Error checking promotions:', error);
+      } else {
+        const hasPromotions = data && data.length > 0;
+        setPromotions(data || []);
+        onPromotionsChange?.(hasPromotions);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      onPromotionsChange?.(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openSupabaseProjects = () => {
+    window.open('https://supabase.com/dashboard/projects', '_blank');
+    toast({
+      title: "Supabase Dashboard",
+      description: "Opening Supabase dashboard in new tab",
+    });
+  };
+
+  if (loading) {
+    return <div className="flex justify-center py-8">Loading promotions...</div>;
+  }
+
   return (
     <div className="space-y-6">
       <Card>
@@ -19,10 +68,16 @@ const AdminPromotions = () => {
             <div className="text-sm text-muted-foreground">
               Manage your promotional campaigns and discounts
             </div>
-            <Button>
-              <Plus size={16} className="mr-2" />
-              Add Promotion
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={openSupabaseProjects}>
+                <ExternalLink size={16} className="mr-2" />
+                Supabase Dashboard
+              </Button>
+              <Button>
+                <Plus size={16} className="mr-2" />
+                Add Promotion
+              </Button>
+            </div>
           </div>
 
           <div className="text-center py-12 text-muted-foreground">
@@ -37,6 +92,47 @@ const AdminPromotions = () => {
               <Plus size={16} className="mr-2" />
               Create First Promotion
             </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* User Management Shortcuts */}
+      <Card>
+        <CardHeader>
+          <CardTitle>User Management Shortcuts</CardTitle>
+          <CardDescription>
+            Quick access to Supabase user management features
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Button 
+              variant="outline" 
+              className="h-20 flex flex-col gap-2"
+              onClick={() => window.open('https://supabase.com/dashboard/project/_/auth/users', '_blank')}
+            >
+              <ExternalLink size={20} />
+              <span>Manage Users in Supabase</span>
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="h-20 flex flex-col gap-2"
+              onClick={() => window.open('https://supabase.com/dashboard/project/_/auth/policies', '_blank')}
+            >
+              <ExternalLink size={20} />
+              <span>User Policies & Security</span>
+            </Button>
+          </div>
+          
+          <div className="mt-4 p-4 bg-muted/50 rounded-lg">
+            <h4 className="font-medium mb-2">Quick Actions:</h4>
+            <ul className="text-sm text-muted-foreground space-y-1">
+              <li>• Suspend users directly from Supabase Auth dashboard</li>
+              <li>• Delete user accounts and associated data</li>
+              <li>• View user activity and login history</li>
+              <li>• Manage user roles and permissions</li>
+            </ul>
           </div>
         </CardContent>
       </Card>

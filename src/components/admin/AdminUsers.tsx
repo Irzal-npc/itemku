@@ -7,7 +7,7 @@ import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Search, UserCheck, UserX, Edit } from 'lucide-react';
+import { Search, UserCheck, UserX, Edit, ExternalLink, Shield } from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -52,6 +52,22 @@ const AdminUsers = () => {
     }
   };
 
+  const openSupabaseUsers = () => {
+    window.open('https://supabase.com/dashboard/project/_/auth/users', '_blank');
+    toast({
+      title: "Supabase Users",
+      description: "Opening Supabase user management in new tab",
+    });
+  };
+
+  const openSupabasePolicies = () => {
+    window.open('https://supabase.com/dashboard/project/_/auth/policies', '_blank');
+    toast({
+      title: "Supabase Policies",
+      description: "Opening Supabase auth policies in new tab",
+    });
+  };
+
   const filteredUsers = users.filter(user =>
     (user.full_name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (user.phone?.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -64,11 +80,53 @@ const AdminUsers = () => {
 
   return (
     <div className="space-y-6">
+      {/* Supabase Management Shortcuts */}
       <Card>
         <CardHeader>
-          <CardTitle>User Management</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Shield size={20} />
+            Supabase User Management
+          </CardTitle>
           <CardDescription>
-            View and manage customer accounts
+            Direct access to Supabase dashboard for advanced user management
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <Button 
+              onClick={openSupabaseUsers}
+              className="h-16 flex flex-col gap-1"
+            >
+              <ExternalLink size={18} />
+              <span className="font-medium">Manage Users</span>
+              <span className="text-xs opacity-80">Suspend & Delete</span>
+            </Button>
+            
+            <Button 
+              variant="outline"
+              onClick={openSupabasePolicies}
+              className="h-16 flex flex-col gap-1"
+            >
+              <Shield size={18} />
+              <span className="font-medium">Auth Policies</span>
+              <span className="text-xs opacity-60">Security Settings</span>
+            </Button>
+          </div>
+          
+          <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+            <p className="text-sm text-amber-800 dark:text-amber-200">
+              <strong>Quick Actions:</strong> Use Supabase dashboard to suspend users, delete accounts, view login history, and manage user permissions directly.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Users Overview */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Users Overview</CardTitle>
+          <CardDescription>
+            View registered users and their basic information
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -91,7 +149,6 @@ const AdminUsers = () => {
                   <TableHead>Address</TableHead>
                   <TableHead>Joined</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -110,24 +167,6 @@ const AdminUsers = () => {
                     </TableCell>
                     <TableCell>
                       <Badge variant="default">Active</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          title="Edit User"
-                        >
-                          <Edit size={14} />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          title="Suspend User"
-                        >
-                          <UserX size={14} />
-                        </Button>
-                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
