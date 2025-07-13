@@ -5,15 +5,16 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { Shield, Package, Megaphone, ArrowLeft } from 'lucide-react';
+import { Shield, Package, Megaphone, Users, Database, ArrowLeft } from 'lucide-react';
 import AdminItems from '../components/admin/AdminItems';
 import AdminPromotions from '../components/admin/AdminPromotions';
+import AdminUsers from '../components/admin/AdminUsers';
+import AdminDatabase from '../components/admin/AdminDatabase';
 
 const AdminDashboard = () => {
   const { isAdmin, logout } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('items');
-  const [hasPromotions, setHasPromotions] = useState(false);
+  const [activeTab, setActiveTab] = useState('database');
 
   // Redirect if not admin
   if (!isAdmin) {
@@ -40,7 +41,7 @@ const AdminDashboard = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
-                <p className="text-muted-foreground">Manage items and promotions</p>
+                <p className="text-muted-foreground">Manage users, items, promotions and database</p>
               </div>
             </div>
           </div>
@@ -49,32 +50,46 @@ const AdminDashboard = () => {
           </Button>
         </div>
 
-        {/* Admin Tabs - Only Items and Promotions */}
+        {/* Admin Tabs - Full Management */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className={`grid w-full ${hasPromotions ? 'grid-cols-2' : 'grid-cols-1'}`}>
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="database" className="flex items-center gap-2">
+              <Database size={16} />
+              Database
+            </TabsTrigger>
+            <TabsTrigger value="users" className="flex items-center gap-2">
+              <Users size={16} />
+              Users
+            </TabsTrigger>
             <TabsTrigger value="items" className="flex items-center gap-2">
               <Package size={16} />
               Items
             </TabsTrigger>
-            {hasPromotions && (
-              <TabsTrigger value="promotions" className="flex items-center gap-2">
-                <Megaphone size={16} />
-                Promotions
-              </TabsTrigger>
-            )}
+            <TabsTrigger value="promotions" className="flex items-center gap-2">
+              <Megaphone size={16} />
+              Promotions
+            </TabsTrigger>
           </TabsList>
+
+          {/* Database Overview Tab */}
+          <TabsContent value="database">
+            <AdminDatabase />
+          </TabsContent>
+
+          {/* Users Management Tab */}
+          <TabsContent value="users">
+            <AdminUsers />
+          </TabsContent>
 
           {/* Items Management Tab */}
           <TabsContent value="items">
             <AdminItems />
           </TabsContent>
 
-          {/* Promotions Management Tab - Only show if there are promotions */}
-          {hasPromotions && (
-            <TabsContent value="promotions">
-              <AdminPromotions onPromotionsChange={setHasPromotions} />
-            </TabsContent>
-          )}
+          {/* Promotions Management Tab */}
+          <TabsContent value="promotions">
+            <AdminPromotions />
+          </TabsContent>
         </Tabs>
       </div>
     </div>

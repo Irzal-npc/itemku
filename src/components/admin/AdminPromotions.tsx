@@ -2,33 +2,218 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
-import { Plus, Edit, Trash2, ExternalLink } from 'lucide-react';
+import { Plus, Edit, Trash2, ExternalLink, Users, Percent, Calendar, Target } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+import { useForm } from "react-hook-form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+
+interface Promotion {
+  id: string;
+  title: string;
+  description: string;
+  discount_percent: number;
+  start_date: string;
+  end_date: string;
+  is_active: boolean;
+  target_users: string;
+  created_at: string;
+}
 
 interface AdminPromotionsProps {
   onPromotionsChange?: (hasPromotions: boolean) => void;
 }
 
 const AdminPromotions = ({ onPromotionsChange }: AdminPromotionsProps) => {
-  const [promotions, setPromotions] = useState<any[]>([]);
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [editingPromotion, setEditingPromotion] = useState<Promotion | null>(null);
+  const [userCount, setUserCount] = useState(0);
   const { toast } = useToast();
 
+  const form = useForm({
+    defaultValues: {
+      title: '',
+      description: '',
+      discount_percent: 10,
+      start_date: '',
+      end_date: '',
+      target_users: 'all'
+    }
+  });
+
   useEffect(() => {
-    checkPromotions();
+    fetchPromotions();
+    fetchUserCount();
   }, []);
 
-  const checkPromotions = async () => {
+  const fetchPromotions = async () => {
     try {
-      // Since there's no promotions table in the database yet,
-      // we'll assume there are no promotions for now
-      setPromotions([]);
-      onPromotionsChange?.(false);
+      // For demo purposes, we'll simulate promotions data
+      // In a real app, you'd fetch from a promotions table
+      const mockPromotions: Promotion[] = [
+        {
+          id: '1',
+          title: 'Welcome Bonus',
+          description: 'Special discount for new users',
+          discount_percent: 15,
+          start_date: '2024-01-01',
+          end_date: '2024-12-31',
+          is_active: true,
+          target_users: 'new',
+          created_at: new Date().toISOString()
+        },
+        {
+          id: '2',
+          title: 'Flash Sale',
+          description: 'Limited time offer for all items',
+          discount_percent: 25,
+          start_date: '2024-07-01',
+          end_date: '2024-07-31',
+          is_active: true,
+          target_users: 'all',
+          created_at: new Date().toISOString()
+        }
+      ];
+      
+      setPromotions(mockPromotions);
+      onPromotionsChange?.(mockPromotions.length > 0);
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error fetching promotions:', error);
       onPromotionsChange?.(false);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchUserCount = async () => {
+    try {
+      const { count, error } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+
+      if (!error) {
+        setUserCount(count || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching user count:', error);
+    }
+  };
+
+  const handleCreatePromotion = async (values: any) => {
+    try {
+      // In a real app, you'd insert into promotions table
+      const newPromotion: Promotion = {
+        id: Date.now().toString(),
+        ...values,
+        is_active: true,
+        created_at: new Date().toISOString()
+      };
+
+      setPromotions(prev => [newPromotion, ...prev]);
+      setShowCreateDialog(false);
+      form.reset();
+      
+      toast({
+        title: "Success",
+        description: "Promotion created successfully",
+      });
+    } catch (error) {
+      console.error('Error creating promotion:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create promotion",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditPromotion = (promotion: Promotion) => {
+    setEditingPromotion(promotion);
+    form.reset({
+      title: promotion.title,
+      description: promotion.description,
+      discount_percent: promotion.discount_percent,
+      start_date: promotion.start_date,
+      end_date: promotion.end_date,
+      target_users: promotion.target_users
+    });
+    setShowCreateDialog(true);
+  };
+
+  const handleUpdatePromotion = async (values: any) => {
+    if (!editingPromotion) return;
+
+    try {
+      const updatedPromotion = {
+        ...editingPromotion,
+        ...values
+      };
+
+      setPromotions(prev => 
+        prev.map(p => p.id === editingPromotion.id ? updatedPromotion : p)
+      );
+      
+      setShowCreateDialog(false);
+      setEditingPromotion(null);
+      form.reset();
+      
+      toast({
+        title: "Success",
+        description: "Promotion updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating promotion:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update promotion",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeletePromotion = async (promotionId: string) => {
+    try {
+      setPromotions(prev => prev.filter(p => p.id !== promotionId));
+      
+      toast({
+        title: "Success",
+        description: "Promotion deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting promotion:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete promotion",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const togglePromotionStatus = async (promotionId: string) => {
+    try {
+      setPromotions(prev => 
+        prev.map(p => 
+          p.id === promotionId ? { ...p, is_active: !p.is_active } : p
+        )
+      );
+      
+      toast({
+        title: "Success",
+        description: "Promotion status updated",
+      });
+    } catch (error) {
+      console.error('Error updating promotion status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update promotion status",
+        variant: "destructive",
+      });
     }
   };
 
@@ -46,84 +231,313 @@ const AdminPromotions = ({ onPromotionsChange }: AdminPromotionsProps) => {
 
   return (
     <div className="space-y-6">
+      {/* Promotion Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
+                <Percent className="text-blue-600 dark:text-blue-400" size={20} />
+              </div>
+              <div>
+                <div className="text-2xl font-bold">{promotions.length}</div>
+                <div className="text-sm text-muted-foreground">Total Promotions</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
+                <Target className="text-green-600 dark:text-green-400" size={20} />
+              </div>
+              <div>
+                <div className="text-2xl font-bold">{promotions.filter(p => p.is_active).length}</div>
+                <div className="text-sm text-muted-foreground">Active Promotions</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
+                <Users className="text-purple-600 dark:text-purple-400" size={20} />
+              </div>
+              <div>
+                <div className="text-2xl font-bold">{userCount}</div>
+                <div className="text-sm text-muted-foreground">Target Users</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-orange-100 dark:bg-orange-900/20 rounded-lg">
+                <Calendar className="text-orange-600 dark:text-orange-400" size={20} />
+              </div>
+              <div>
+                <div className="text-2xl font-bold">
+                  {promotions.filter(p => new Date(p.end_date) > new Date()).length}
+                </div>
+                <div className="text-sm text-muted-foreground">Upcoming</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Promotions Management */}
       <Card>
         <CardHeader>
-          <CardTitle>Promotions Management</CardTitle>
-          <CardDescription>
-            Create and manage promotional campaigns
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex justify-between items-center mb-6">
-            <div className="text-sm text-muted-foreground">
-              Manage your promotional campaigns and discounts
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle>Promotions Management</CardTitle>
+              <CardDescription>
+                Create and manage promotional campaigns for your users
+              </CardDescription>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" onClick={openSupabaseProjects}>
                 <ExternalLink size={16} className="mr-2" />
                 Supabase Dashboard
               </Button>
-              <Button>
-                <Plus size={16} className="mr-2" />
-                Add Promotion
-              </Button>
+              <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+                <DialogTrigger asChild>
+                  <Button onClick={() => setEditingPromotion(null)}>
+                    <Plus size={16} className="mr-2" />
+                    Add Promotion
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>
+                      {editingPromotion ? 'Edit Promotion' : 'Create New Promotion'}
+                    </DialogTitle>
+                    <DialogDescription>
+                      {editingPromotion ? 'Update promotion details' : 'Create a new promotional campaign'}
+                    </DialogDescription>
+                  </DialogHeader>
+                  
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(editingPromotion ? handleUpdatePromotion : handleCreatePromotion)} className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="title"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Promotion Title</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Enter promotion title" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Description</FormLabel>
+                            <FormControl>
+                              <Textarea placeholder="Enter promotion description" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="discount_percent"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Discount Percentage</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="number" 
+                                min="1" 
+                                max="100" 
+                                placeholder="10" 
+                                {...field}
+                                onChange={(e) => field.onChange(parseInt(e.target.value))}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="start_date"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Start Date</FormLabel>
+                              <FormControl>
+                                <Input type="date" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="end_date"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>End Date</FormLabel>
+                              <FormControl>
+                                <Input type="date" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <FormField
+                        control={form.control}
+                        name="target_users"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Target Users</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select target users" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="all">All Users</SelectItem>
+                                <SelectItem value="new">New Users</SelectItem>
+                                <SelectItem value="returning">Returning Users</SelectItem>
+                                <SelectItem value="vip">VIP Users</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="flex justify-end gap-2 pt-4">
+                        <Button type="button" variant="outline" onClick={() => {
+                          setShowCreateDialog(false);
+                          setEditingPromotion(null);
+                          form.reset();
+                        }}>
+                          Cancel
+                        </Button>
+                        <Button type="submit">
+                          {editingPromotion ? 'Update' : 'Create'} Promotion
+                        </Button>
+                      </div>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
-
-          <div className="text-center py-12 text-muted-foreground">
-            <div className="mb-4">
-              <div className="w-16 h-16 bg-muted rounded-full mx-auto flex items-center justify-center mb-4">
-                <Plus size={32} />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">No Promotions Yet</h3>
-              <p>Create your first promotional campaign to boost sales</p>
-            </div>
-            <Button>
-              <Plus size={16} className="mr-2" />
-              Create First Promotion
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* User Management Shortcuts */}
-      <Card>
-        <CardHeader>
-          <CardTitle>User Management Shortcuts</CardTitle>
-          <CardDescription>
-            Quick access to Supabase user management features
-          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Button 
-              variant="outline" 
-              className="h-20 flex flex-col gap-2"
-              onClick={() => window.open('https://supabase.com/dashboard/project/_/auth/users', '_blank')}
-            >
-              <ExternalLink size={20} />
-              <span>Manage Users in Supabase</span>
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              className="h-20 flex flex-col gap-2"
-              onClick={() => window.open('https://supabase.com/dashboard/project/_/auth/policies', '_blank')}
-            >
-              <ExternalLink size={20} />
-              <span>User Policies & Security</span>
-            </Button>
-          </div>
-          
-          <div className="mt-4 p-4 bg-muted/50 rounded-lg">
-            <h4 className="font-medium mb-2">Quick Actions:</h4>
-            <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• Suspend users directly from Supabase Auth dashboard</li>
-              <li>• Delete user accounts and associated data</li>
-              <li>• View user activity and login history</li>
-              <li>• Manage user roles and permissions</li>
-            </ul>
-          </div>
+          {promotions.length > 0 ? (
+            <div className="space-y-4">
+              {promotions.map((promotion) => (
+                <Card key={promotion.id}>
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-lg font-semibold">{promotion.title}</h3>
+                          <div className="flex gap-2">
+                            <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 text-xs rounded-full">
+                              {promotion.discount_percent}% OFF
+                            </span>
+                            <span className={`px-2 py-1 text-xs rounded-full ${
+                              promotion.is_active 
+                                ? 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200' 
+                                : 'bg-gray-100 dark:bg-gray-900/20 text-gray-800 dark:text-gray-200'
+                            }`}>
+                              {promotion.is_active ? 'Active' : 'Inactive'}
+                            </span>
+                          </div>
+                        </div>
+                        <p className="text-muted-foreground mb-3">{promotion.description}</p>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                          <div>
+                            <span className="text-muted-foreground">Start:</span>
+                            <p>{new Date(promotion.start_date).toLocaleDateString()}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">End:</span>
+                            <p>{new Date(promotion.end_date).toLocaleDateString()}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Target:</span>
+                            <p className="capitalize">{promotion.target_users} Users</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Created:</span>
+                            <p>{new Date(promotion.created_at).toLocaleDateString()}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 ml-4">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => togglePromotionStatus(promotion.id)}
+                        >
+                          {promotion.is_active ? 'Deactivate' : 'Activate'}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleEditPromotion(promotion)}
+                        >
+                          <Edit size={16} />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleDeletePromotion(promotion.id)}
+                        >
+                          <Trash2 size={16} />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-muted-foreground">
+              <div className="mb-4">
+                <div className="w-16 h-16 bg-muted rounded-full mx-auto flex items-center justify-center mb-4">
+                  <Percent size={32} />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">No Promotions Yet</h3>
+                <p>Create your first promotional campaign to engage users</p>
+              </div>
+              <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+                <DialogTrigger asChild>
+                  <Button onClick={() => setEditingPromotion(null)}>
+                    <Plus size={16} className="mr-2" />
+                    Create First Promotion
+                  </Button>
+                </DialogTrigger>
+              </Dialog>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
