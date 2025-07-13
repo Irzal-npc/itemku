@@ -21,7 +21,11 @@ interface Promotion {
   end_date: string;
   is_active: boolean;
   target_users: string;
+  icon_name: string;
+  bg_color: string;
+  icon_color: string;
   created_at: string;
+  updated_at: string;
 }
 
 interface AdminPromotionsProps {
@@ -43,7 +47,10 @@ const AdminPromotions = ({ onPromotionsChange }: AdminPromotionsProps) => {
       discount_percent: 10,
       start_date: '',
       end_date: '',
-      target_users: 'all'
+      target_users: 'all',
+      icon_name: 'percent',
+      bg_color: 'bg-orange-100 dark:bg-orange-900/20',
+      icon_color: 'text-orange-600 dark:text-orange-400'
     }
   });
 
@@ -54,35 +61,19 @@ const AdminPromotions = ({ onPromotionsChange }: AdminPromotionsProps) => {
 
   const fetchPromotions = async () => {
     try {
-      // For demo purposes, we'll simulate promotions data
-      // In a real app, you'd fetch from a promotions table
-      const mockPromotions: Promotion[] = [
-        {
-          id: '1',
-          title: 'Welcome Bonus',
-          description: 'Special discount for new users',
-          discount_percent: 15,
-          start_date: '2024-01-01',
-          end_date: '2024-12-31',
-          is_active: true,
-          target_users: 'new',
-          created_at: new Date().toISOString()
-        },
-        {
-          id: '2',
-          title: 'Flash Sale',
-          description: 'Limited time offer for all items',
-          discount_percent: 25,
-          start_date: '2024-07-01',
-          end_date: '2024-07-31',
-          is_active: true,
-          target_users: 'all',
-          created_at: new Date().toISOString()
-        }
-      ];
-      
-      setPromotions(mockPromotions);
-      onPromotionsChange?.(mockPromotions.length > 0);
+      const { data, error } = await supabase
+        .from('promotions')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching promotions:', error);
+        onPromotionsChange?.(false);
+        return;
+      }
+
+      setPromotions(data || []);
+      onPromotionsChange?.(data ? data.length > 0 : false);
     } catch (error) {
       console.error('Error fetching promotions:', error);
       onPromotionsChange?.(false);
@@ -107,15 +98,34 @@ const AdminPromotions = ({ onPromotionsChange }: AdminPromotionsProps) => {
 
   const handleCreatePromotion = async (values: any) => {
     try {
-      // In a real app, you'd insert into promotions table
-      const newPromotion: Promotion = {
-        id: Date.now().toString(),
-        ...values,
-        is_active: true,
-        created_at: new Date().toISOString()
-      };
+      const { data, error } = await supabase
+        .from('promotions')
+        .insert([{
+          title: values.title,
+          description: values.description,
+          discount_percent: values.discount_percent,
+          start_date: values.start_date,
+          end_date: values.end_date,
+          target_users: values.target_users,
+          icon_name: values.icon_name,
+          bg_color: values.bg_color,
+          icon_color: values.icon_color,
+          is_active: true
+        }])
+        .select()
+        .single();
 
-      setPromotions(prev => [newPromotion, ...prev]);
+      if (error) {
+        console.error('Error creating promotion:', error);
+        toast({
+          title: "Error",
+          description: "Failed to create promotion",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      await fetchPromotions();
       setShowCreateDialog(false);
       form.reset();
       
@@ -141,7 +151,10 @@ const AdminPromotions = ({ onPromotionsChange }: AdminPromotionsProps) => {
       discount_percent: promotion.discount_percent,
       start_date: promotion.start_date,
       end_date: promotion.end_date,
-      target_users: promotion.target_users
+      target_users: promotion.target_users,
+      icon_name: promotion.icon_name,
+      bg_color: promotion.bg_color,
+      icon_color: promotion.icon_color
     });
     setShowCreateDialog(true);
   };
@@ -150,15 +163,33 @@ const AdminPromotions = ({ onPromotionsChange }: AdminPromotionsProps) => {
     if (!editingPromotion) return;
 
     try {
-      const updatedPromotion = {
-        ...editingPromotion,
-        ...values
-      };
+      const { error } = await supabase
+        .from('promotions')
+        .update({
+          title: values.title,
+          description: values.description,
+          discount_percent: values.discount_percent,
+          start_date: values.start_date,
+          end_date: values.end_date,
+          target_users: values.target_users,
+          icon_name: values.icon_name,
+          bg_color: values.bg_color,
+          icon_color: values.icon_color,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', editingPromotion.id);
 
-      setPromotions(prev => 
-        prev.map(p => p.id === editingPromotion.id ? updatedPromotion : p)
-      );
-      
+      if (error) {
+        console.error('Error updating promotion:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update promotion",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      await fetchPromotions();
       setShowCreateDialog(false);
       setEditingPromotion(null);
       form.reset();
@@ -179,7 +210,22 @@ const AdminPromotions = ({ onPromotionsChange }: AdminPromotionsProps) => {
 
   const handleDeletePromotion = async (promotionId: string) => {
     try {
-      setPromotions(prev => prev.filter(p => p.id !== promotionId));
+      const { error } = await supabase
+        .from('promotions')
+        .delete()
+        .eq('id', promotionId);
+
+      if (error) {
+        console.error('Error deleting promotion:', error);
+        toast({
+          title: "Error",
+          description: "Failed to delete promotion",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      await fetchPromotions();
       
       toast({
         title: "Success",
@@ -195,13 +241,27 @@ const AdminPromotions = ({ onPromotionsChange }: AdminPromotionsProps) => {
     }
   };
 
-  const togglePromotionStatus = async (promotionId: string) => {
+  const togglePromotionStatus = async (promotionId: string, currentStatus: boolean) => {
     try {
-      setPromotions(prev => 
-        prev.map(p => 
-          p.id === promotionId ? { ...p, is_active: !p.is_active } : p
-        )
-      );
+      const { error } = await supabase
+        .from('promotions')
+        .update({ 
+          is_active: !currentStatus,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', promotionId);
+
+      if (error) {
+        console.error('Error updating promotion status:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update promotion status",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      await fetchPromotions();
       
       toast({
         title: "Success",
@@ -354,26 +414,54 @@ const AdminPromotions = ({ onPromotionsChange }: AdminPromotionsProps) => {
                         )}
                       />
 
-                      <FormField
-                        control={form.control}
-                        name="discount_percent"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Discount Percentage</FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="number" 
-                                min="1" 
-                                max="100" 
-                                placeholder="10" 
-                                {...field}
-                                onChange={(e) => field.onChange(parseInt(e.target.value))}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="discount_percent"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Discount %</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="number" 
+                                  min="0" 
+                                  max="100" 
+                                  placeholder="10" 
+                                  {...field}
+                                  onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="icon_name"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Icon</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select icon" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="percent">Percent</SelectItem>
+                                  <SelectItem value="gift">Gift</SelectItem>
+                                  <SelectItem value="star">Star</SelectItem>
+                                  <SelectItem value="zap">Flash</SelectItem>
+                                  <SelectItem value="crown">Crown</SelectItem>
+                                  <SelectItem value="trophy">Trophy</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <FormField
@@ -459,9 +547,11 @@ const AdminPromotions = ({ onPromotionsChange }: AdminPromotionsProps) => {
                         <div className="flex items-center gap-3 mb-2">
                           <h3 className="text-lg font-semibold">{promotion.title}</h3>
                           <div className="flex gap-2">
-                            <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 text-xs rounded-full">
-                              {promotion.discount_percent}% OFF
-                            </span>
+                            {promotion.discount_percent > 0 && (
+                              <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 text-xs rounded-full">
+                                {promotion.discount_percent}% OFF
+                              </span>
+                            )}
                             <span className={`px-2 py-1 text-xs rounded-full ${
                               promotion.is_active 
                                 ? 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200' 
@@ -495,7 +585,7 @@ const AdminPromotions = ({ onPromotionsChange }: AdminPromotionsProps) => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => togglePromotionStatus(promotion.id)}
+                          onClick={() => togglePromotionStatus(promotion.id, promotion.is_active)}
                         >
                           {promotion.is_active ? 'Deactivate' : 'Activate'}
                         </Button>

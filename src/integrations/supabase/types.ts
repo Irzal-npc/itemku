@@ -104,6 +104,54 @@ export type Database = {
         }
         Relationships: []
       }
+      promotions: {
+        Row: {
+          bg_color: string
+          created_at: string
+          description: string
+          discount_percent: number
+          end_date: string
+          icon_color: string
+          icon_name: string
+          id: string
+          is_active: boolean
+          start_date: string
+          target_users: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          bg_color?: string
+          created_at?: string
+          description: string
+          discount_percent?: number
+          end_date: string
+          icon_color?: string
+          icon_name?: string
+          id?: string
+          is_active?: boolean
+          start_date: string
+          target_users?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          bg_color?: string
+          created_at?: string
+          description?: string
+          discount_percent?: number
+          end_date?: string
+          icon_color?: string
+          icon_name?: string
+          id?: string
+          is_active?: boolean
+          start_date?: string
+          target_users?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       purchase_history: {
         Row: {
           delivery_date: string | null

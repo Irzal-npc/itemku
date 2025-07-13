@@ -1,54 +1,94 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Percent, Gift, Star, Zap, Crown, Trophy } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from './ui/carousel';
 import PromotionCard from './PromotionCard';
+import { supabase } from '@/integrations/supabase/client';
+
+// Icon mapping for the promotions
+const iconMap: { [key: string]: React.ComponentType<any> } = {
+  'percent': Percent,
+  'gift': Gift,
+  'star': Star,
+  'zap': Zap,
+  'crown': Crown,
+  'trophy': Trophy,
+};
+
+interface Promotion {
+  id: string;
+  title: string;
+  description: string;
+  discount_percent: number;
+  start_date: string;
+  end_date: string;
+  is_active: boolean;
+  target_users: string;
+  icon_name: string;
+  bg_color: string;
+  icon_color: string;
+  created_at: string;
+  updated_at: string;
+}
 
 const PromotionBox = () => {
-  const promotions = [
-    {
-      title: "Special Offer!",
-      description: "Get 20% off on all items this week",
-      icon: Percent,
-      bgColor: "bg-orange-100 dark:bg-orange-900/20",
-      iconColor: "text-orange-600 dark:text-orange-400"
-    },
-    {
-      title: "Free Gift!",
-      description: "Buy 2 items and get 1 free bonus item",
-      icon: Gift,
-      bgColor: "bg-green-100 dark:bg-green-900/20",
-      iconColor: "text-green-600 dark:text-green-400"
-    },
-    {
-      title: "Premium Items",
-      description: "New premium collection now available",
-      icon: Star,
-      bgColor: "bg-yellow-100 dark:bg-yellow-900/20",
-      iconColor: "text-yellow-600 dark:text-yellow-400"
-    },
-    {
-      title: "Flash Sale!",
-      description: "Limited time offer - Up to 50% off",
-      icon: Zap,
-      bgColor: "bg-red-100 dark:bg-red-900/20",
-      iconColor: "text-red-600 dark:text-red-400"
-    },
-    {
-      title: "VIP Members",
-      description: "Exclusive deals for VIP members only",
-      icon: Crown,
-      bgColor: "bg-purple-100 dark:bg-purple-900/20",
-      iconColor: "text-purple-600 dark:text-purple-400"
-    },
-    {
-      title: "Top Rated",
-      description: "Best selling items with 5-star ratings",
-      icon: Trophy,
-      bgColor: "bg-blue-100 dark:bg-blue-900/20",
-      iconColor: "text-blue-600 dark:text-blue-400"
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchPromotions();
+  }, []);
+
+  const fetchPromotions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('promotions')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching promotions:', error);
+        return;
+      }
+
+      setPromotions(data || []);
+    } catch (error) {
+      console.error('Error fetching promotions:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  if (loading) {
+    return (
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            Latest Promotions
+          </h2>
+        </div>
+        <div className="flex items-center justify-center py-8">
+          <div className="text-muted-foreground">Loading promotions...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (promotions.length === 0) {
+    return (
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            Latest Promotions
+          </h2>
+        </div>
+        <div className="flex items-center justify-center py-8">
+          <div className="text-muted-foreground">No active promotions available</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mb-6">
@@ -69,14 +109,14 @@ const PromotionBox = () => {
         className="w-full"
       >
         <CarouselContent className="-ml-2 md:-ml-4">
-          {promotions.map((promotion, index) => (
-            <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+          {promotions.map((promotion) => (
+            <CarouselItem key={promotion.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
               <PromotionCard
                 title={promotion.title}
                 description={promotion.description}
-                icon={promotion.icon}
-                bgColor={promotion.bgColor}
-                iconColor={promotion.iconColor}
+                icon={iconMap[promotion.icon_name] || Percent}
+                bgColor={promotion.bg_color}
+                iconColor={promotion.icon_color}
               />
             </CarouselItem>
           ))}
