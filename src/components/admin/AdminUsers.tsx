@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
@@ -7,7 +6,7 @@ import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Search, UserCheck, UserX, Edit, ExternalLink, Shield, Plus, Eye, Trash2, RefreshCw } from 'lucide-react';
+import { Search, UserCheck, UserX, Edit, ExternalLink, Shield, Plus, Eye, Trash2, RefreshCw, Users } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { useForm } from "react-hook-form";
