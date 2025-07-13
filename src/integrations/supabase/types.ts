@@ -14,7 +14,129 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      items: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: number
+          image: string
+          name: string
+          price: number
+          type: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: number
+          image: string
+          name: string
+          price: number
+          type: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: number
+          image?: string
+          name?: string
+          price?: number
+          type?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          address: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      purchase_history: {
+        Row: {
+          delivery_date: string | null
+          id: string
+          items: Json
+          order_date: string
+          payment_method: string
+          status: string
+          total: number
+          user_id: string
+        }
+        Insert: {
+          delivery_date?: string | null
+          id?: string
+          items: Json
+          order_date?: string
+          payment_method: string
+          status?: string
+          total: number
+          user_id: string
+        }
+        Update: {
+          delivery_date?: string | null
+          id?: string
+          items?: Json
+          order_date?: string
+          payment_method?: string
+          status?: string
+          total?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
