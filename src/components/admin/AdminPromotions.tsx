@@ -292,60 +292,60 @@ const AdminPromotions = ({ onPromotionsChange }: AdminPromotionsProps) => {
   return (
     <div className="space-y-6">
       {/* Promotion Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
-                <Percent className="text-blue-600 dark:text-blue-400" size={20} />
+          <CardContent className="p-3 md:p-6">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="p-1.5 md:p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex-shrink-0">
+                <Percent className="text-blue-600 dark:text-blue-400" size={16} />
               </div>
-              <div>
-                <div className="text-2xl font-bold">{promotions.length}</div>
-                <div className="text-sm text-muted-foreground">Total Promotions</div>
+              <div className="min-w-0">
+                <div className="text-lg md:text-2xl font-bold">{promotions.length}</div>
+                <div className="text-xs md:text-sm text-muted-foreground">Total</div>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
-                <Target className="text-green-600 dark:text-green-400" size={20} />
+          <CardContent className="p-3 md:p-6">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="p-1.5 md:p-2 bg-green-100 dark:bg-green-900/20 rounded-lg flex-shrink-0">
+                <Target className="text-green-600 dark:text-green-400" size={16} />
               </div>
-              <div>
-                <div className="text-2xl font-bold">{promotions.filter(p => p.is_active).length}</div>
-                <div className="text-sm text-muted-foreground">Active Promotions</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
-                <Users className="text-purple-600 dark:text-purple-400" size={20} />
-              </div>
-              <div>
-                <div className="text-2xl font-bold">{userCount}</div>
-                <div className="text-sm text-muted-foreground">Target Users</div>
+              <div className="min-w-0">
+                <div className="text-lg md:text-2xl font-bold">{promotions.filter(p => p.is_active).length}</div>
+                <div className="text-xs md:text-sm text-muted-foreground">Active</div>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-orange-100 dark:bg-orange-900/20 rounded-lg">
-                <Calendar className="text-orange-600 dark:text-orange-400" size={20} />
+          <CardContent className="p-3 md:p-6">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="p-1.5 md:p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex-shrink-0">
+                <Users className="text-purple-600 dark:text-purple-400" size={16} />
               </div>
-              <div>
-                <div className="text-2xl font-bold">
+              <div className="min-w-0">
+                <div className="text-lg md:text-2xl font-bold">{userCount}</div>
+                <div className="text-xs md:text-sm text-muted-foreground">Users</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-3 md:p-6">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="p-1.5 md:p-2 bg-orange-100 dark:bg-orange-900/20 rounded-lg flex-shrink-0">
+                <Calendar className="text-orange-600 dark:text-orange-400" size={16} />
+              </div>
+              <div className="min-w-0">
+                <div className="text-lg md:text-2xl font-bold">
                   {promotions.filter(p => new Date(p.end_date) > new Date()).length}
                 </div>
-                <div className="text-sm text-muted-foreground">Upcoming</div>
+                <div className="text-xs md:text-sm text-muted-foreground">Upcoming</div>
               </div>
             </div>
           </CardContent>
@@ -355,17 +355,18 @@ const AdminPromotions = ({ onPromotionsChange }: AdminPromotionsProps) => {
       {/* Promotions Management */}
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <CardTitle>Promotions Management</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-lg md:text-xl">Promotions Management</CardTitle>
+              <CardDescription className="text-sm md:text-base">
                 Create and manage promotional campaigns for your users
               </CardDescription>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={openSupabaseProjects}>
-                <ExternalLink size={16} className="mr-2" />
-                Supabase Dashboard
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <Button variant="outline" onClick={openSupabaseProjects} size="sm" className="w-full sm:w-auto">
+                <ExternalLink size={14} className="mr-2" />
+                <span className="hidden sm:inline">Supabase Dashboard</span>
+                <span className="sm:hidden">Dashboard</span>
               </Button>
               <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
                 <DialogTrigger asChild>

@@ -177,46 +177,46 @@ const AdminUsers = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6">
         <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
-                <Users className="text-blue-600 dark:text-blue-400" size={20} />
+          <CardContent className="p-3 md:p-6">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="p-1.5 md:p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex-shrink-0">
+                <Users className="text-blue-600 dark:text-blue-400" size={16} />
               </div>
-              <div>
-                <div className="text-2xl font-bold">{users.length}</div>
-                <div className="text-sm text-muted-foreground">Total Users</div>
+              <div className="min-w-0">
+                <div className="text-lg md:text-2xl font-bold">{users.length}</div>
+                <div className="text-xs md:text-sm text-muted-foreground">Total Users</div>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
-                <UserCheck className="text-green-600 dark:text-green-400" size={20} />
+          <CardContent className="p-3 md:p-6">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="p-1.5 md:p-2 bg-green-100 dark:bg-green-900/20 rounded-lg flex-shrink-0">
+                <UserCheck className="text-green-600 dark:text-green-400" size={16} />
               </div>
-              <div>
-                <div className="text-2xl font-bold">{users.filter(u => u.full_name).length}</div>
-                <div className="text-sm text-muted-foreground">Complete Profiles</div>
+              <div className="min-w-0">
+                <div className="text-lg md:text-2xl font-bold">{users.filter(u => u.full_name).length}</div>
+                <div className="text-xs md:text-sm text-muted-foreground">Complete Profiles</div>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
-                <Shield className="text-purple-600 dark:text-purple-400" size={20} />
+          <CardContent className="p-3 md:p-6">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="p-1.5 md:p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex-shrink-0">
+                <Shield className="text-purple-600 dark:text-purple-400" size={16} />
               </div>
-              <div>
-                <div className="text-2xl font-bold">1</div>
-                <div className="text-sm text-muted-foreground">Admin Users</div>
+              <div className="min-w-0">
+                <div className="text-lg md:text-2xl font-bold">1</div>
+                <div className="text-xs md:text-sm text-muted-foreground">Admin Users</div>
               </div>
             </div>
           </CardContent>
@@ -226,33 +226,35 @@ const AdminUsers = () => {
       {/* Supabase Management Shortcuts */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield size={20} />
+          <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+            <Shield size={18} />
             Advanced User Management
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-sm md:text-base">
             Direct access to Supabase dashboard for advanced user operations
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-4">
             <Button 
               onClick={openSupabaseUsers}
-              className="h-16 flex flex-col gap-1"
+              className="h-12 md:h-16 flex flex-col gap-1 text-sm"
+              size="sm"
             >
-              <ExternalLink size={18} />
+              <ExternalLink size={16} />
               <span className="font-medium">Manage Auth Users</span>
-              <span className="text-xs opacity-80">Suspend, Delete, Reset</span>
+              <span className="text-xs opacity-80 hidden md:block">Suspend, Delete, Reset</span>
             </Button>
             
             <Button 
               variant="outline"
               onClick={openSupabasePolicies}
-              className="h-16 flex flex-col gap-1"
+              className="h-12 md:h-16 flex flex-col gap-1 text-sm"
+              size="sm"
             >
-              <Shield size={18} />
+              <Shield size={16} />
               <span className="font-medium">Security Policies</span>
-              <span className="text-xs opacity-60">RLS & Permissions</span>
+              <span className="text-xs opacity-60 hidden md:block">RLS & Permissions</span>
             </Button>
           </div>
           
@@ -268,39 +270,40 @@ const AdminUsers = () => {
       {/* Users Management */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <CardTitle>User Management</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-lg md:text-xl">User Management</CardTitle>
+              <CardDescription className="text-sm md:text-base">
                 View and manage all registered users and their profiles
               </CardDescription>
             </div>
-            <Button onClick={fetchUsers} variant="outline" size="sm">
-              <RefreshCw size={16} className="mr-2" />
+            <Button onClick={fetchUsers} variant="outline" size="sm" className="w-full sm:w-auto">
+              <RefreshCw size={14} className="mr-2" />
               Refresh
             </Button>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-2 mb-6 max-w-sm">
-            <Search size={20} className="text-muted-foreground" />
+          <div className="flex items-center gap-2 mb-4 md:mb-6">
+            <Search size={18} className="text-muted-foreground flex-shrink-0" />
             <Input
-              placeholder="Search users by name, phone, or ID..."
+              placeholder="Search users..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              className="text-sm"
             />
           </div>
 
-          <div className="border rounded-lg">
+          <div className="border rounded-lg overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Address</TableHead>
-                  <TableHead>Joined</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="min-w-[150px]">User</TableHead>
+                  <TableHead className="min-w-[120px] hidden sm:table-cell">Contact</TableHead>
+                  <TableHead className="min-w-[150px] hidden md:table-cell">Address</TableHead>
+                  <TableHead className="min-w-[100px] hidden lg:table-cell">Joined</TableHead>
+                  <TableHead className="min-w-[80px]">Status</TableHead>
+                  <TableHead className="min-w-[100px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -308,47 +311,52 @@ const AdminUsers = () => {
                   <TableRow key={user.id}>
                     <TableCell>
                       <div>
-                        <div className="font-medium">{user.full_name || 'No Name'}</div>
-                        <div className="text-sm text-muted-foreground font-mono">
+                        <div className="font-medium text-sm">{user.full_name || 'No Name'}</div>
+                        <div className="text-xs text-muted-foreground font-mono">
                           {user.id.substring(0, 8)}...
+                        </div>
+                        <div className="text-xs text-muted-foreground sm:hidden">
+                          {user.phone || 'No Phone'}
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       <div className="text-sm">
                         {user.phone || 'No Phone'}
                       </div>
                     </TableCell>
-                    <TableCell className="max-w-xs">
+                    <TableCell className="max-w-xs hidden md:table-cell">
                       <div className="text-sm truncate">
                         {user.address || 'No Address'}
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden lg:table-cell">
                       <div className="text-sm">
                         {new Date(user.created_at).toLocaleDateString()}
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={user.full_name ? "default" : "secondary"}>
+                      <Badge variant={user.full_name ? "default" : "secondary"} className="text-xs">
                         {user.full_name ? "Active" : "Incomplete"}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
                         <Button
                           size="sm"
                           variant="ghost"
                           onClick={() => handleViewUser(user)}
+                          className="p-2"
                         >
-                          <Eye size={16} />
+                          <Eye size={14} />
                         </Button>
                         <Button
                           size="sm"
                           variant="ghost"
                           onClick={() => handleEditUser(user)}
+                          className="p-2"
                         >
-                          <Edit size={16} />
+                          <Edit size={14} />
                         </Button>
                       </div>
                     </TableCell>
@@ -359,7 +367,7 @@ const AdminUsers = () => {
           </div>
 
           {filteredUsers.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-6 md:py-8 text-muted-foreground text-sm">
               {searchTerm ? 'No users found matching your search.' : 'No registered users yet.'}
             </div>
           )}

@@ -128,18 +128,20 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 dark:from-gray-900 dark:to-purple-900 font-poppins">
-      <div className="container mx-auto py-8 px-4">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-2">ITEMKU</h1>
-            <p className="text-gray-600 dark:text-gray-300">Your Ultimate Gaming Marketplace</p>
+      <div className="container mx-auto py-4 md:py-8 px-2 md:px-4">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 md:mb-8 gap-4">
+          <div className="min-w-0">
+            <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-2">ITEMKU</h1>
+            <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base">Your Ultimate Gaming Marketplace</p>
           </div>
-          <Navigation />
+          <div className="w-full lg:w-auto">
+            <Navigation />
+          </div>
         </div>
         
         <PromotionBox />
         
-        <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <div className="flex flex-col gap-3 md:gap-4 mb-4">
           <SearchBar onSearch={setSearchQuery} />
           <FilterBar 
             onCategoryChange={setCategoryFilter}
@@ -149,7 +151,7 @@ const Index = () => {
           />
         </div>
 
-        <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+        <div className="mb-4 text-xs md:text-sm text-gray-600 dark:text-gray-400 px-2 md:px-0">
           Showing {displayedItems.length} of {filteredAndSortedItems.length} items (Page {currentPage} of {totalPages})
         </div>
 
