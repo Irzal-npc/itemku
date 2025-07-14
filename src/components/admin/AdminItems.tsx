@@ -213,31 +213,32 @@ const AdminItems = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center gap-2 flex-1 max-w-sm">
-              <Search size={20} className="text-muted-foreground" />
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div className="flex items-center gap-2 flex-1 w-full sm:max-w-sm">
+              <Search size={18} className="text-muted-foreground flex-shrink-0" />
               <Input
                 placeholder="Search items..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                className="text-sm"
               />
             </div>
             
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
-                <Button onClick={() => { resetForm(); setIsAddDialogOpen(true); }}>
+                <Button onClick={() => { resetForm(); setIsAddDialogOpen(true); }} className="w-full sm:w-auto">
                   <Plus size={16} className="mr-2" />
                   Add Item
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl">
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>Add New Item</DialogTitle>
                   <DialogDescription>
                     Fill in the details to add a new game item to your store.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">Name</Label>
                     <Input
@@ -290,7 +291,7 @@ const AdminItems = () => {
                     </Select>
                   </div>
                   
-                  <div className="col-span-2 space-y-2">
+                  <div className="md:col-span-2 space-y-2">
                     <Label htmlFor="image">Image URL</Label>
                     <Input
                       id="image"
@@ -300,7 +301,7 @@ const AdminItems = () => {
                     />
                   </div>
                   
-                  <div className="col-span-2 space-y-2">
+                  <div className="md:col-span-2 space-y-2">
                     <Label htmlFor="description">Description</Label>
                     <Textarea
                       id="description"
@@ -324,16 +325,16 @@ const AdminItems = () => {
             </Dialog>
           </div>
 
-          <div className="border rounded-lg">
+          <div className="border rounded-lg overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Image</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="min-w-[60px]">Image</TableHead>
+                  <TableHead className="min-w-[120px]">Name</TableHead>
+                  <TableHead className="min-w-[100px] hidden sm:table-cell">Category</TableHead>
+                  <TableHead className="min-w-[80px] hidden md:table-cell">Type</TableHead>
+                  <TableHead className="min-w-[100px]">Price</TableHead>
+                  <TableHead className="min-w-[100px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -343,29 +344,38 @@ const AdminItems = () => {
                       <img 
                         src={item.image} 
                         alt={item.name}
-                        className="w-12 h-12 object-cover rounded"
+                        className="w-10 h-10 md:w-12 md:h-12 object-cover rounded"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=100&h=100&fit=crop&crop=center';
                         }}
                       />
                     </TableCell>
-                    <TableCell className="font-medium">{item.name}</TableCell>
-                    <TableCell>{item.category}</TableCell>
-                    <TableCell>{item.type}</TableCell>
-                    <TableCell>Rp {item.price.toLocaleString()}</TableCell>
                     <TableCell>
-                      <div className="flex gap-2">
+                      <div>
+                        <div className="font-medium text-sm">{item.name}</div>
+                        <div className="text-xs text-muted-foreground sm:hidden">
+                          {item.category} • {item.type}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell text-sm">{item.category}</TableCell>
+                    <TableCell className="hidden md:table-cell text-sm">{item.type}</TableCell>
+                    <TableCell className="text-sm font-medium">Rp {item.price.toLocaleString()}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-1">
                         <Button
-                          variant="outline"
+                          variant="ghost"
                           size="sm"
                           onClick={() => openEditDialog(item)}
+                          className="p-2"
                         >
                           <Edit size={14} />
                         </Button>
                         <Button
-                          variant="outline"
+                          variant="ghost"
                           size="sm"
                           onClick={() => handleDeleteItem(item.id)}
+                          className="p-2"
                         >
                           <Trash2 size={14} />
                         </Button>
@@ -387,14 +397,14 @@ const AdminItems = () => {
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Item</DialogTitle>
             <DialogDescription>
               Update the item details below.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="edit-name">Name</Label>
               <Input
@@ -447,7 +457,7 @@ const AdminItems = () => {
               </Select>
             </div>
             
-            <div className="col-span-2 space-y-2">
+            <div className="md:col-span-2 space-y-2">
               <Label htmlFor="edit-image">Image URL</Label>
               <Input
                 id="edit-image"
@@ -457,7 +467,7 @@ const AdminItems = () => {
               />
             </div>
             
-            <div className="col-span-2 space-y-2">
+            <div className="md:col-span-2 space-y-2">
               <Label htmlFor="edit-description">Description</Label>
               <Textarea
                 id="edit-description"

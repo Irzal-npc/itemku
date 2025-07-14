@@ -370,12 +370,12 @@ const AdminPromotions = ({ onPromotionsChange }: AdminPromotionsProps) => {
               </Button>
               <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
                 <DialogTrigger asChild>
-                  <Button onClick={() => setEditingPromotion(null)}>
+                  <Button onClick={() => setEditingPromotion(null)} className="w-full sm:w-auto">
                     <Plus size={16} className="mr-2" />
                     Add Promotion
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>
                       {editingPromotion ? 'Edit Promotion' : 'Create New Promotion'}

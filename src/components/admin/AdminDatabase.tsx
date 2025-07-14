@@ -109,26 +109,31 @@ const AdminDatabase = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="border rounded-lg">
+          <div className="border rounded-lg overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Table Name</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Records</TableHead>
-                      <TableHead>Status</TableHead>
+                      <TableHead className="min-w-[120px]">Table Name</TableHead>
+                      <TableHead className="min-w-[150px] hidden sm:table-cell">Description</TableHead>
+                      <TableHead className="min-w-[80px]">Records</TableHead>
+                      <TableHead className="min-w-[70px]">Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {tableInfo.map((table) => (
                       <TableRow key={table.name}>
-                        <TableCell className="font-medium font-mono">
-                          {table.name}
+                        <TableCell className="font-medium font-mono text-sm">
+                          <div>
+                            <div>{table.name}</div>
+                            <div className="text-xs text-muted-foreground sm:hidden truncate">
+                              {table.description}
+                            </div>
+                          </div>
                         </TableCell>
-                        <TableCell>{table.description}</TableCell>
-                        <TableCell>{table.count.toLocaleString()}</TableCell>
+                        <TableCell className="hidden sm:table-cell text-sm">{table.description}</TableCell>
+                        <TableCell className="text-sm font-medium">{table.count.toLocaleString()}</TableCell>
                         <TableCell>
-                          <Badge variant="default">Active</Badge>
+                          <Badge variant="default" className="text-xs">Active</Badge>
                         </TableCell>
                       </TableRow>
                     ))}
