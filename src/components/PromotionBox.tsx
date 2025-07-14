@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { Percent, Gift, Star, Zap, Crown, Trophy } from 'lucide-react';
+import { Percent, Gift, Star, Zap, Crown, Trophy, LucideIcon } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from './ui/carousel';
 import PromotionCard from './PromotionCard';
 import { supabase } from '@/integrations/supabase/client';
 
 // Icon mapping for the promotions
-const iconMap: { [key: string]: React.ComponentType<any> } = {
+const iconMap: { [key: string]: LucideIcon } = {
   'percent': Percent,
   'gift': Gift,
   'star': Star,
